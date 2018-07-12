@@ -51,13 +51,13 @@ class SalesforceClient {
     );
   };
 
-  // Refresh tokens 1m before they expire
+  // Refresh tokens 1m before they expire, minimum 1m
   getTTL(expiryDate) {
     let ttl = expiryDate - Date.now() - 60 * 1000;
     if (process.env.SAPI_REFRESH_INTERVAL) {
       ttl = parseInt(process.env.SAPI_REFRESH_INTERVAL, 10);
     }
-    return Math.max(0, ttl);
+    return Math.max(60 * 1000, ttl);
   }
 
   loopTokenRequest(userId, store, cb) {
