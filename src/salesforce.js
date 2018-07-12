@@ -75,7 +75,7 @@ class SalesforceClient {
         }
         // keep the refresh token if we had one, assuming we didn't just get a new one.
         let newState = Object.assign({}, ostate, { tokens: body });
-        if (ostate.tokens && !body.tokens.refresh_token) {
+        if (ostate.tokens && !body.refresh_token) {
           newState.tokens.refresh_token = ostate.tokens.refresh_token;
         }
         put(null, newState, () => {
@@ -88,7 +88,7 @@ class SalesforceClient {
                 this.loopTokenRequest(userId, store)
               );
             },
-            this.getTTL(body.tokens.expiry_date)
+            this.getTTL(body.expiry_date)
           );
           if (cb) {
             cb();
