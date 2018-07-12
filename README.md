@@ -81,7 +81,7 @@ you're planning to run the sample app,
 `https://<bluemix app name>.mybluemix.net/messages` if you've deployed it
 to Bluemix.
 
-Configure the **Add an Action** section of the app to use your /messages endpoint when invoked (i.e. make your command `/messages` and choose the webhook you just configured).
+Configure the **Add an Action** section of the app to use your /messages endpoint when invoked (i.e. make your command `/objects` and choose the webhook you just configured).
 
 Save the app and write down its app id, app secret and Webhook secret.
 
@@ -218,15 +218,15 @@ watsonwork-messages-app Got Webhook verification challenge
 
 ### Using the app
 
-Once the webhook is enabled, that's it! Add the app to a space and invoke it using the `/messages` command (or whatever command you configured in WWS).
+Once the webhook is enabled, that's it! Add the app to a space and invoke it using the `/objects` command.
 
 The app will output a salesforce link to prompt the user to authorize, allowing the
 app access to read their mail. If the user accepts and logs in, the app will
 receive and store an `access_token` for them that will allow the app to perform
 certain salesforce requests as that user.
 
-If the app then receives another `/messages` request from that user, it will
-show them snippets of their first 5 salesforce threads.
+If the app then receives another `/objects` request from that user, it will
+show them their first 15 salesforce objects.
 
 Tokens will be refreshed automatically 1 minute before they expire, but note that
 Salesforce does not return refresh tokens if the user has already authorized an app.

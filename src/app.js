@@ -72,7 +72,7 @@ export const messagesCallback = (appId, store, wwToken) =>
         // handles action fulfillment annotations
         const args = actionId.split(' ');
         switch(args[0]) {
-          case '/messages':
+          case '/objects':
             handleCommand(args[0], action, userId, wwToken, store);
             break;
         }
@@ -94,7 +94,7 @@ export const oauthCompleteCallback = (store, wwToken) => (req, res) => {
     }
     const { actionType, action } = ostate;
     switch(actionType) {
-      case '/messages':
+      case '/objects':
         handleCommand(actionType, action, userId, wwToken, store);
         break;
     }
