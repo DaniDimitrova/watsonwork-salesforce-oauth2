@@ -53,7 +53,7 @@ class SalesforceClient {
 
   // Refresh tokens 1m before they expire, minimum 1m
   getTTL(expiryDate) {
-    let ttl = expiryDate - Date.now() - 60 * 1000;
+    let ttl = (expiryDate || 0) - Date.now() - 60 * 1000;
     if (process.env.SAPI_REFRESH_INTERVAL) {
       ttl = parseInt(process.env.SAPI_REFRESH_INTERVAL, 10);
     }
