@@ -1,7 +1,7 @@
-# watsonwork-gmail-oauth2
+# watsonwork-salesforce-oauth2
 
-A sample Watson Work app that presents a user with their messages from GMail,
-handling Google's OAuth2.0 flow and storing multiple users' tokens in a PouchDB
+A sample Watson Work app that presents a user with their messages from Salesforce,
+handling Salesforce's OAuth2.0 flow and storing multiple users' tokens in a PouchDB
 instance.
 
 ## Try it out
@@ -14,7 +14,7 @@ If you want to give the sample app a quick try using [Bluemix](https://bluemix.n
 from Github without even having to download it to your local development
 environment and build it yourself. Just click the button below:
 
-[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/ZacharyStair/watsonwork-gmail-oauth2&branch=master)
+[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/ZacharyStair/watsonwork-salesforce-oauth2&branch=master)
 
 > Note: it is likely that the pipeline step failed to automatically configure,
 > you can create your own by adding two different pipeline stages with one job each:
@@ -54,17 +54,17 @@ In a terminal window, do the following:
 export DEBUG=watsonwork-*
 
 # Get the code
-git clone https://github.com/ZacharyStair/watsonwork-gmail-oauth2
+git clone https://github.com/ZacharyStair/watsonwork-salesforce-oauth2
 
 # Build the app
-cd watsonwork-gmail-oauth2
+cd watsonwork-salesforce-oauth2
 npm run build
 ```
 
-### Configuring the Gmail API service
+### Configuring the Salesforce API service
 
-You must create an app on the [Google Cloud Platform](https://console.cloud.google.com/),
-include the Gmail API under the 'APIs' section, and create 'credentials' for
+You must create an app on the [Salesforce Cloud Platform](https://console.cloud.salesforce.com/),
+include the Salesforce API under the 'APIs' section, and create 'credentials' for
 this app, providing your **route** public URL (from above), followed by
 `/oauth2Callback` (i.e. `https://<bluemix app name>.mybluemix.net/oauth2Callback`)
 
@@ -96,13 +96,13 @@ select your app and under **Runtime** / **Environment Variables** /
 WW_APP_ID: <this app's id>                                      
 WW_APP_SECRET: <this app's secret>                              
 WW_WEBHOOK_SECRET: <this app's secret>
-GAPI_CLIENT_ID: <obtained from Google app dashboard>
-GAPI_CLIENT_SECRET: <obtained from Google app dashboard>
-GAPI_CLIENT_REDIRECT_URI: <obtained from Google app dashboard>
+SAPI_CLIENT_ID: <obtained from Salesforce app dashboard>
+SAPI_CLIENT_SECRET: <obtained from Salesforce app dashboard>
+SAPI_CLIENT_REDIRECT_URI: <obtained from Salesforce app dashboard>
 DEBUG: watsonwork-*
 ```
 
-(you can use `GAPI_REFRESH_INTERVAL: 12345` to set the interval that token refresh 
+(you can use `SAPI_REFRESH_INTERVAL: 12345` to set the interval that token refresh 
 requests are sent out)
 
 Click the **> Start** button to start the app.
@@ -125,9 +125,9 @@ In the terminal window, do the following:
 export WW_APP_ID <this app's id>
 export WW_APP_SECRET <this app's secret>
 export WW_WEBHOOK_SECRET <this app's secret>
-export GAPI_CLIENT_ID <obtained from Google app dashboard>
-export GAPI_CLIENT_SECRET <obtained from Google app dashboard>
-export GAPI_CLIENT_REDIRECT_URI <obtained from Google app dashboard>
+export SAPI_CLIENT_ID <obtained from Salesforce app dashboard>
+export SAPI_CLIENT_SECRET <obtained from Salesforce app dashboard>
+export SAPI_CLIENT_REDIRECT_URI <obtained from Salesforce app dashboard>
 ```
 
 The Watson Work platform requires Webhook endpoints to use HTTPS. The
@@ -197,7 +197,7 @@ You can now go back to
 [Watson Work Services / Apps](https://workspace.ibm.com/developer/apps),  
 edit the **Messages** app and set its Webhook **Callback URL** to
 `https://<subdomain name>.localtunnel.me/messages`, and set the authorization
-callback of your Google Cloud app to the same.
+callback of your Salesforce Cloud app to the same.
 
 ### Enabling the app Webhook
 
@@ -220,20 +220,20 @@ watsonwork-messages-app Got Webhook verification challenge
 
 Once the webhook is enabled, that's it! Add the app to a space and invoke it using the `/messages` command (or whatever command you configured in WWS).
 
-The app will output a google link to prompt the user to authorize, allowing the
+The app will output a salesforce link to prompt the user to authorize, allowing the
 app access to read their mail. If the user accepts and logs in, the app will
 receive and store an `access_token` for them that will allow the app to perform
-certain gmail requests as that user.
+certain salesforce requests as that user.
 
 If the app then receives another `/messages` request from that user, it will
-show them snippets of their first 5 gmail threads.
+show them snippets of their first 5 salesforce threads.
 
 Tokens will be refreshed automatically 1 minute before they expire, but note that
-Gmail does not return refresh tokens if the user has already authorized an app.
+Salesforce does not return refresh tokens if the user has already authorized an app.
 This means if you redeploy the app, the pouchDB (in-memory) store will be emptied
 and users' refresh tokens will be lost. For users to have their tokens refreshed
 after pushing new changes to the app, they will have to go revoke permissions from
-gmail.
+salesforce.
 
 If you replace the pouchDB database with a separate standalone service, that can
 mitigate this issue.
@@ -251,7 +251,7 @@ src/          - Javascript sources
   app.js      - main app conversation handling script
   events.js   - parses Webhook events to be routed to app logic
   messages.js - reads and sends messages
-  google.js   - handles webhook events that require requests to be sent to google
+  salesforce.js   - handles webhook events that require requests to be sent to salesforce
   graphql.js  - runs GraphQL queries
   oauth.js    - obtains OAuth tokens for the app
   sign.js     - signs and verifies Webhook requests and responses

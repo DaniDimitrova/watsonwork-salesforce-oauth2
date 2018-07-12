@@ -1,21 +1,21 @@
 {
-  "name": "watsonwork-gmail-oauth2",
-  "description": "A sample app that listens to messages posted to a space in IBM Watson Workspace and implements actions that authorize with google and return the user's messages",
+  "name": "watsonwork-salesforce-oauth2",
+  "description": "A sample app that listens to messages posted to a space in IBM Watson Workspace and implements actions that authorize with salesforce and return the user's messages",
   "license": "Apache-2.0",
   "version": "0.0.1",
-  "homepage": "https://github.com/ZacharyStair/watsonwork-gmail-oauth2",
+  "homepage": "https://github.com/ZacharyStair/watsonwork-salesforce-oauth2",
   "bugs": {
-    "url": "https://github.com/ZacharyStair/watsonwork-gmail-oauth2"
+    "url": "https://github.com/ZacharyStair/watsonwork-salesforce-oauth2"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ZacharyStair/watsonwork-gmail-oauth2.git"
+    "url": "https://github.com/ZacharyStair/watsonwork-salesforce-oauth2.git"
   },
   "keywords": [
     "watson",
     "work",
     "sample",
-    "gmail",
+    "salesforce",
     "oauth"
   ],
   "files": [
@@ -42,7 +42,6 @@
     "body-parser": "^1.15.2",
     "debug": "^2.2.0",
     "express": "^4.14.0",
-    "googleapis": "^32.0.0",
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.17.10",
     "memdown": "^1.2.4",

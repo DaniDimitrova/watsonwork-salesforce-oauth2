@@ -15,7 +15,7 @@ import * as sign from './sign';
 import * as messages from './messages';
 import * as events from './events';
 import * as state from './state';
-import googleClient from './google';
+import salesforceClient from './salesforce';
 
 // Debug log
 const log = debug('watsonwork-messages-app');
@@ -23,8 +23,8 @@ const log = debug('watsonwork-messages-app');
 const handleCommand = (actionType, action, userId, wwToken, store) => {
   state.run(userId, store, (err, ostate, put) => {
     const { tokens } = ostate;
-    const gmail = googleClient.makeGmailInstance(tokens);
-    gmail.users.threads.list({ userId: 'me', maxResults: 5 }).then(({ data }) => {
+    const salesforce = salesforceClient.makeSalesforceInstance(tokens);
+    salesforce.users.threads.list({ userId: 'me', maxResults: 5 }).then(({ data }) => {
       messages.sendTargeted(
         action.conversationId,
         userId,
@@ -46,7 +46,7 @@ const handleCommand = (actionType, action, userId, wwToken, store) => {
             action: action || ostate.action,
             tokens: null
           },
-          () => googleClient.reauth(action || ostate.action, userId)
+          () => salesforceClient.reauth(action || ostate.action, userId)
         );
       }
     });
@@ -81,7 +81,7 @@ export const oauthCompleteCallback = (store, wwToken) => (req, res) => {
   res.end('Login successful, you may close this window and retry the `/messages` action');
 
   // This won't work as-written; your app can use the new access token from
-  // pouchDB state to do anything in gmail, but sending a targeted message back to
+  // pouchDB state to do anything in salesforce, but sending a targeted message back to
   // Watson Workspace won't work because we already sent a targeted message to this dialog.
   const userId = querystring.parse(url.parse(req.url).query).state;
   state.get(userId, store, (err, ostate) => {
@@ -110,7 +110,7 @@ export const webapp =
 
       const store = state.store(initialStore);
 
-      googleClient.wwToken = wwToken;
+      salesforceClient.wwToken = wwToken;
       
       const app = express();
       // Configure Express route for the app Webhook
@@ -125,16 +125,16 @@ export const webapp =
         // Handle Watson Work Webhook challenge requests
         sign.challenge(whsecret),
 
-        googleClient.checkToken(appId, store),
+        salesforceClient.checkToken(appId, store),
 
         // Handle Watson Work Webhook events
         messagesCallback(appId, store, wwToken)
       );
 
-      // google will call this endpoint after a user completes their authentication,
-      // then this app will complete the OAuth2 handshake by getting an access token from google
+      // salesforce will call this endpoint after a user completes their authentication,
+      // then this app will complete the OAuth2 handshake by getting an access token from salesforce
       app.get('/oauth2callback',
-        googleClient.handleCallback(store),
+        salesforceClient.handleCallback(store),
         oauthCompleteCallback(store, wwToken)
       );
 

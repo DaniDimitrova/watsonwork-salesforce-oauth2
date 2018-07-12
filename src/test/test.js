@@ -1,5 +1,5 @@
 // A sample app that listens to messages posted to a space in IBM
-// Watson Workspace and implements actions that return the user's gmail messages.
+// Watson Workspace and implements actions that return the user's salesforce messages.
 
 // Test the happy path
 
@@ -16,6 +16,6 @@
 // Load the app
 require('../app');
 
-describe('watsonwork-gmail-oauth2', () => {
+describe('watsonwork-salesforce-oauth2', () => {
 });
 

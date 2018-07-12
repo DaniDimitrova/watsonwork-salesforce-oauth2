@@ -1,5 +1,4 @@
 /* eslint-env es_modules */
-import { google } from 'googleapis';
 import querystring from 'querystring';
 import url from 'url';
 import debug from 'debug';
@@ -8,15 +7,15 @@ import * as state from './state';
 import * as messages from './messages';
 
 // Setup debug log
-const log = debug('watsonwork-messages-google');
+const log = debug('watsonwork-messages-salesforce');
 
-class GoogleClient {
+class SalesforceClient {
   constructor() {
-  	this.oAuth2Client = new google.auth.OAuth2(
-      process.env.GAPI_CLIENT_ID,
-      process.env.GAPI_CLIENT_SECRET,
-      process.env.GAPI_CLIENT_REDIRECT_URI
-    );
+  	// this.oAuth2Client = new salesforce.auth.OAuth2(
+    //   process.env.SAPI_CLIENT_ID,
+    //   process.env.SAPI_CLIENT_SECRET,
+    //   process.env.SAPI_CLIENT_REDIRECT_URI
+    // );
     this.handleCallback = this.handleCallback.bind(this);
     this.checkToken = this.checkToken.bind(this);
   }
@@ -27,19 +26,19 @@ class GoogleClient {
    * This method isn't needed if you want to just use `request` and pass tokens directly
    * @param {Object} tokens 
    */
-  makeGmailInstance(tokens) {
+  makeSalesforceInstance(tokens) {
     // we likely don't need to pass all of the env variables again,
     // but doing so allows the oauthClient to eagerly refresh the tokens if needed.
-    const newOauthClient = new google.auth.OAuth2(
-      process.env.GAPI_CLIENT_ID,
-      process.env.GAPI_CLIENT_SECRET,
-      process.env.GAPI_CLIENT_REDIRECT_URI
-    );
-    newOauthClient.credentials = tokens;
-    return google.gmail({
-      version: 'v1',
-      auth: newOauthClient
-    });
+    // const newOauthClient = new salesforce.auth.OAuth2(
+    //   process.env.SAPI_CLIENT_ID,
+    //   process.env.SAPI_CLIENT_SECRET,
+    //   process.env.SAPI_CLIENT_REDIRECT_URI
+    // );
+    // newOauthClient.credentials = tokens;
+    // return salesforce.salesforce({
+    //   version: 'v1',
+    //   auth: newOauthClient
+    // });
   }
 
   handleCallback(store) {
@@ -56,17 +55,17 @@ class GoogleClient {
       log('cannot send authorization request');
       return;
     }
-    const scopes = ['https://www.googleapis.com/auth/gmail.readonly'];
-    const authorizeUrl = this.oAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: scopes.join(' '),
-      state: userId
-    });
+    // const scopes = ['https://www.salesforceapis.com/auth/salesforce.readonly'];
+    // const authorizeUrl = this.oAuth2Client.generateAuthUrl({
+    //   access_type: 'offline',
+    //   scope: scopes.join(' '),
+    //   state: userId
+    // });
     messages.sendTargeted(
       action.conversationId,
       userId,
       action.targetDialogId,
-      'Please log in to Gmail',
+      'Please log in to Salesforce',
       authorizeUrl,
       this.wwToken()
     );
@@ -75,8 +74,8 @@ class GoogleClient {
   // Refresh tokens 1m before they expire
   getTTL(expiryDate) {
     let ttl = expiryDate - Date.now() - 60 * 1000;
-    if (process.env.GAPI_REFRESH_INTERVAL) {
-      ttl = parseInt(process.env.GAPI_REFRESH_INTERVAL, 10);
+    if (process.env.SAPI_REFRESH_INTERVAL) {
+      ttl = parseInt(process.env.SAPI_REFRESH_INTERVAL, 10);
     }
     return Math.max(0, ttl);
   }
@@ -154,4 +153,4 @@ class GoogleClient {
   }
 }
 
-export default new GoogleClient();
+export default new SalesforceClient();
