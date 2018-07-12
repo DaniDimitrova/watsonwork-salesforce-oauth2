@@ -2,6 +2,7 @@
 import querystring from 'querystring';
 import url from 'url';
 import debug from 'debug';
+import nforce from 'nforce';
 import * as events from './events';
 import * as state from './state';
 import * as messages from './messages';
@@ -11,40 +12,20 @@ const log = debug('watsonwork-messages-salesforce');
 
 class SalesforceClient {
   constructor() {
-  	// this.oAuth2Client = new salesforce.auth.OAuth2(
-    //   process.env.SAPI_CLIENT_ID,
-    //   process.env.SAPI_CLIENT_SECRET,
-    //   process.env.SAPI_CLIENT_REDIRECT_URI
-    // );
+  	this.oAuth2Client = nforce.createConnection({
+      clientId: process.env.SAPI_CLIENT_ID,
+      clientSecret: process.env.SAPI_CLIENT_SECRET,
+      redirectUri: process.env.SAPI_CLIENT_REDIRECT_URI
+    });
     this.handleCallback = this.handleCallback.bind(this);
     this.checkToken = this.checkToken.bind(this);
-  }
-
-  /**
-   * Our app handles tokens for multiple users, so we can create an 'oauth' client
-   * as needed for each user.
-   * This method isn't needed if you want to just use `request` and pass tokens directly
-   * @param {Object} tokens 
-   */
-  makeSalesforceInstance(tokens) {
-    // we likely don't need to pass all of the env variables again,
-    // but doing so allows the oauthClient to eagerly refresh the tokens if needed.
-    // const newOauthClient = new salesforce.auth.OAuth2(
-    //   process.env.SAPI_CLIENT_ID,
-    //   process.env.SAPI_CLIENT_SECRET,
-    //   process.env.SAPI_CLIENT_REDIRECT_URI
-    // );
-    // newOauthClient.credentials = tokens;
-    // return salesforce.salesforce({
-    //   version: 'v1',
-    //   auth: newOauthClient
-    // });
   }
 
   handleCallback(store) {
     return (req, res, next) => {
       const qs = querystring.parse(url.parse(req.url).query);
-      return this.oAuth2Client.getToken(qs.code).then(
+      return this.oAuth2Client.authenticate(
+        { code: qs.code },
         this.loopTokenRequest(qs.state, store, next)
       );
     };
@@ -55,12 +36,11 @@ class SalesforceClient {
       log('cannot send authorization request');
       return;
     }
-    // const scopes = ['https://www.salesforceapis.com/auth/salesforce.readonly'];
-    // const authorizeUrl = this.oAuth2Client.generateAuthUrl({
-    //   access_type: 'offline',
-    //   scope: scopes.join(' '),
-    //   state: userId
-    // });
+    const scope = ['api', 'refresh_token'];
+    const authorizeUrl = this.oAuth2Client.getAuthUri({
+      scope,
+      state: userId
+    });
     messages.sendTargeted(
       action.conversationId,
       userId,
@@ -81,7 +61,11 @@ class SalesforceClient {
   }
 
   loopTokenRequest(userId, store, cb) {
-    return (body) => {
+    return (err, body) => {
+      if (err) {
+        log('Error authenticating: %o', err);
+        return;
+      }
       log('got tokens for %s, body: %o', userId, body);
       state.run(userId, store, (err, ostate, put) => {
         if (err) {
@@ -90,16 +74,17 @@ class SalesforceClient {
           return;
         }
         // keep the refresh token if we had one, assuming we didn't just get a new one.
-        let newState = Object.assign({}, ostate, { tokens: body.tokens });
+        let newState = Object.assign({}, ostate, { tokens: body });
         if (ostate.tokens && !body.tokens.refresh_token) {
           newState.tokens.refresh_token = ostate.tokens.refresh_token;
         }
         put(null, newState, () => {
           setTimeout(
             () => {
-              const token = body.tokens.refresh_token || ostate.tokens.refresh_token;
-              log('Requesting refresh token %s', token);
-              this.oAuth2Client.refreshToken(token).then(
+              const tokens = newState.tokens;
+              log('Requesting refresh token %o', tokens);
+              this.oAuth2Client.refreshToken(
+                { oauth: tokens },
                 this.loopTokenRequest(userId, store)
               );
             },

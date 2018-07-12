@@ -23,14 +23,17 @@ const log = debug('watsonwork-messages-app');
 const handleCommand = (actionType, action, userId, wwToken, store) => {
   state.run(userId, store, (err, ostate, put) => {
     const { tokens } = ostate;
-    const salesforce = salesforceClient.makeSalesforceInstance(tokens);
-    salesforce.users.threads.list({ userId: 'me', maxResults: 5 }).then(({ data }) => {
+    salesforceClient.oAuth2Client.getSObjects({ oauth: tokens }, (err, data) => {
+      if (err) {
+        log('Error getting SOBjects: %o', err);
+        return;
+      }
       messages.sendTargeted(
         action.conversationId,
         userId,
         action.targetDialogId,
-        'Your Messages',
-        _.unescape(data.threads.map((message) => `- ${message.snippet}`).join('\\n')),
+        'Your first 15 Salesforce objects',
+        _.unescape(data.sobjects.slice(0, 15).map((message) => `- ${message.name}`).join('\\n')),
         wwToken()
       );
       // remove any stored actions if action was successful.
