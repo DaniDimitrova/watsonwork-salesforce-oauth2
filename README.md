@@ -228,12 +228,9 @@ certain salesforce requests as that user.
 If the app then receives another `/objects` request from that user, it will
 show them their first 15 salesforce objects.
 
-Tokens will be refreshed automatically 1 minute before they expire, but note that
-Salesforce does not return refresh tokens if the user has already authorized an app.
-This means if you redeploy the app, the pouchDB (in-memory) store will be emptied
-and users' refresh tokens will be lost. For users to have their tokens refreshed
-after pushing new changes to the app, they will have to go revoke permissions from
-salesforce.
+Tokens will be refreshed automatically 1 minute before they expire (salesforce defaults to 2h,
+if you change this be sure to set the `SAPI_REFRESH_INTERVAL` env variable to an appropriate
+refresh interval, in ms, usually 1m before the token would expire).
 
 If you replace the pouchDB database with a separate standalone service, that can
 mitigate this issue.
