@@ -51,9 +51,10 @@ class SalesforceClient {
     );
   };
 
-  // Refresh tokens 1m before they expire, minimum 1m
-  getTTL(expiryDate) {
-    let ttl = (expiryDate || 0) - Date.now() - 60 * 1000;
+  // By default, salesforce tokens expire after 2 hours.
+  // if you change this value in salesforce, you can use the env variable to change the refresh interval.
+  getTTL() {
+    let ttl = 119 * 60 * 1000; // ttl = 2h - 1m
     if (process.env.SAPI_REFRESH_INTERVAL) {
       ttl = parseInt(process.env.SAPI_REFRESH_INTERVAL, 10);
     }
@@ -88,7 +89,7 @@ class SalesforceClient {
                 this.loopTokenRequest(userId, store)
               );
             },
-            this.getTTL(body.expiry_date)
+            this.getTTL()
           );
           if (cb) {
             cb();

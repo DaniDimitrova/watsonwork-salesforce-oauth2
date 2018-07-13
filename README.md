@@ -103,7 +103,7 @@ DEBUG: watsonwork-*
 ```
 
 (you can use `SAPI_REFRESH_INTERVAL: 12345` to set the interval that token refresh 
-requests are sent out)
+requests are sent out. This is necessary if you change the session timeout in salesforce settings)
 
 Click the **> Start** button to start the app.
 
