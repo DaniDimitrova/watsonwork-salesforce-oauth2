@@ -79,11 +79,9 @@ export const messagesCallback = (appId, store, wwToken) =>
 
 export const oauthCompleteCallback = (store, wwToken) => (req, res) => {
   log('completed oauth flow, resuming user action...');
-  res.end('Login successful, you may close this window and retry the `/messages` action');
+  res.end();
 
-  // This won't work as-written; your app can use the new access token from
-  // pouchDB state to do anything in salesforce, but sending a targeted message back to
-  // Watson Workspace won't work because we already sent a targeted message to this dialog.
+  // Once the user authorizes we can continue their action...
   const userId = querystring.parse(url.parse(req.url).query).state;
   state.get(userId, store, (err, ostate) => {
     log('completing user action with state %o error %o', ostate, err);
