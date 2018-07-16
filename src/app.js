@@ -79,7 +79,7 @@ export const messagesCallback = (appId, store, wwToken) =>
 
 export const oauthCompleteCallback = (store, wwToken) => (req, res) => {
   log('completed oauth flow, resuming user action...');
-  res.end();
+  res.end('Authorization successful! You may close this tab and continue what you were doing.');
 
   // Once the user authorizes we can continue their action...
   const userId = querystring.parse(url.parse(req.url).query).state;
