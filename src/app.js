@@ -26,6 +26,18 @@ const handleCommand = (actionType, action, userId, wwToken, store) => {
     salesforceClient.oAuth2Client.getSObjects({ oauth: tokens }, (err, data) => {
       if (err) {
         log('Error getting SOBjects: %o', err);
+        if (err.statusCode === 401) {
+          put(
+            null,
+            {
+              _rev: ostate._rev,
+              actionType: actionType || ostate.actionType,
+              action: action || ostate.action,
+              tokens: null
+            },
+            () => salesforceClient.reauth(action || ostate.action, userId)
+          );
+        }
         return;
       }
       messages.sendTargeted(
@@ -38,20 +50,6 @@ const handleCommand = (actionType, action, userId, wwToken, store) => {
       );
       // remove any stored actions if action was successful.
       put(null, { _rev: ostate._rev, tokens });
-    }).catch((e) => {
-      log('error getting messages: %o', e.response);
-      if (e && e.response && e.response.status === 401) {
-        put(
-          null,
-          {
-            _rev: ostate._rev,
-            actionType: actionType || ostate.actionType,
-            action: action || ostate.action,
-            tokens: null
-          },
-          () => salesforceClient.reauth(action || ostate.action, userId)
-        );
-      }
     });
   });
 };
